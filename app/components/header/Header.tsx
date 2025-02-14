@@ -3,12 +3,13 @@ import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Feather from "@expo/vector-icons/Feather";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
+import generalStyles from "@/app/utils/generalStyles";
 
 const Header = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.text}>Whatsapp</Text>
+        <Text style={generalStyles.text}>Whatsapp</Text>
         <View style={styles.headerIcons}>
           <Feather name="camera" size={24} color="white" />
           <EvilIcons name="search" size={30} color="white" />
@@ -36,10 +37,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: 10,
-  },
-  text: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 20,
   },
 });
