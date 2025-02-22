@@ -1,10 +1,35 @@
 import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import data from "@/app/utils/data";
 import { Foundation } from "@expo/vector-icons";
 import generalStyles from "@/app/utils/generalStyles";
 
 const ButtonList = () => {
+  const [filter, setFilter] = useState("all");
+  const [filteredMessage, setFilteredMessage] = useState(data.messageList);
+  const applyFilter = (filterType: string) => {
+    setFilter(filterType);
+    switch (filterType) {
+      case "unread":
+        setFilteredMessage(
+          data.messageList.filter((message) => message.isUnread)
+        );
+        break;
+      case "favorites":
+        setFilteredMessage(
+          data.messageList.filter((message) => message.isFavourite)
+        );
+        break;
+      case "groups":
+        setFilteredMessage(
+          data.messageList.filter((message) => message.isGroup)
+        );
+        break;
+      default:
+        setFilteredMessage(data.messageList);
+        break;
+    }
+  };
   return (
     <View style={styles.container}>
       <FlatList
@@ -12,8 +37,10 @@ const ButtonList = () => {
         renderItem={({ item }) => {
           return (
             <View key={item.id}>
-              <Pressable>
-                <Text style={styles.button}>{item.name}</Text>
+              <Pressable onPress={() => applyFilter(item.type)}>
+                <View style={styles.button}>
+                  <Text style={styles.buttonText}>{item.name}</Text>
+                </View>
               </Pressable>
             </View>
           );
@@ -36,11 +63,16 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   button: {
-    color: "white",
-    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 30,
+    paddingHorizontal: 10,
     borderRadius: 20,
     backgroundColor: "grey",
     opacity: 0.5,
+  },
+  buttonText: {
+    color: "white",
     fontSize: 16,
   },
   archiveSection: {

@@ -1,24 +1,34 @@
 import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import MemoryModal from "../memoryModal/MemoryModal";
 import ButtonList from "../ButtonList/ButtonList";
 import CardListItem from "../cardListItem/CardListItem";
 import data from "@/app/utils/data";
-
+import Fab from "../fab/Fab";
+import MetaAiFab from "../fab/MetaAiFab";
 const Home = () => {
+
+  
   return (
-    <ScrollView>
-      <MemoryModal />
-      <ButtonList />
-      <CardListItem
-        id={data.messageList[1].id}
-        profile={data.messageList[1].profile}
-        title={data.messageList[1].title}
-        date={data.messageList[1].date}
-        message={data.messageList[1].message}
-        statusIcon={data.messageList[1].statusIcon}
-      />
-    </ScrollView>
+    <View style={{ position: "relative" }}>
+      <ScrollView>
+        <MemoryModal />
+        <ButtonList />
+        {data.messageList.map((listItem, key) => (
+          <CardListItem
+            key={listItem.id}
+            profile={listItem.profile}
+            title={listItem.title}
+            date={listItem.date}
+            message={listItem.message}
+            statusIcon={listItem.statusIcon}
+            id={0}
+          />
+        ))}
+      </ScrollView>
+      <MetaAiFab />
+      <Fab />
+    </View>
   );
 };
 

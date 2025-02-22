@@ -38,7 +38,7 @@ export default MemoryModal;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    // marginTop: 10,
     marginBottom: 20,
     backgroundColor: "#0a332b",
     opacity: 0.7,
