@@ -8,10 +8,15 @@ import {
 import React from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const Fab = () => {
+interface Props {
+  onPress: () => void;
+}
+
+const Fab = ({onPress}: Props) => {
   return (
     <View style={[styles.container]}>
-      <TouchableWithoutFeedback>
+
+      <TouchableWithoutFeedback onPress={onPress}>
         <Animated.View style={[styles.button, styles.menu]}>
           <MaterialCommunityIcons
             name="message-plus-outline"
@@ -20,7 +25,7 @@ const Fab = () => {
           />
         </Animated.View>
       </TouchableWithoutFeedback>
-    </View>
+    </View> 
   );
 };
 

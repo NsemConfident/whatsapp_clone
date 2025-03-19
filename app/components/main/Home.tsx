@@ -15,9 +15,40 @@ import Fab from "../fab/Fab";
 import MetaAiFab from "../fab/MetaAiFab";
 import { Foundation } from "@expo/vector-icons";
 import generalStyles from "@/app/utils/generalStyles";
+import AddMessageForm from "../addMessageForm/AddMessageForm";
 const Home = () => {
   const [filter, setFilter] = useState("all");
   const [filteredMessage, setFilteredMessage] = useState(data.messageList);
+  const [message, setMessage] = useState<
+  {
+    id: number;
+    profile: string;
+    title: string;
+    date: string;
+    message: string;
+    statusIcon: string;
+    isUnread: boolean;
+    isGroup: boolean;
+    isFavourite: boolean;
+  }[]
+>([]); // Ensure it's an empty array with the correct type
+
+  const [modalVisible, setModalVisible] = useState(false)
+
+  const handleAddItem = (newMessage: {
+    id: number;
+    profile: string;
+    title: string;
+    date: string;
+    message: string;
+    statusIcon: string;
+    isUnread: boolean;
+    isGroup: boolean;
+    isFavourite: boolean;
+  }) => {
+    setMessage((prevMessages) => [...prevMessages, newMessage]);
+  };
+  
   const applyFilter = (filterType: string) => {
     setFilter(filterType);
     switch (filterType) {
@@ -85,7 +116,8 @@ const Home = () => {
         </ScrollView>
       </View>
       {/* <MetaAiFab /> */}
-      <Fab />
+      <Fab onPress={()=>setModalVisible(true)}/>
+      <AddMessageForm visible={modalVisible} onClose={()=> setModalVisible(false)} onAdd={handleAddItem} />
     </View>
   );
 };
