@@ -52,6 +52,7 @@ const Home: React.FC = () => {
   const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [statusIcon, setStatusIcon] = useState("pin");
 
   let [fontsLoaded] = useFonts({
     Mulish_400Regular,
@@ -182,6 +183,22 @@ const Home: React.FC = () => {
             placeholder="message"
             style={[styles.input, styles.messageInput]}
           />
+          <View>
+            <View style={[styles.nameInput]}>
+              <Text>Status Icon: </Text>
+              <Picker
+                style={[styles.input, styles.picker]}
+                selectedValue={statusIcon}
+                onValueChange={(itemValue: string) => setStatusIcon(itemValue)}
+              >
+                <Picker.Item label="pin" value="pin" />
+                <Picker.Item label="muted" value="muted" />
+              </Picker>
+            </View>
+            <Text style={styles.formDescription}>
+              you message will be: {statusIcon === "muted" ? "muted" : "pinned"}
+            </Text>
+          </View>
           <Pressable
             onPress={() => {
               setModalOpen(false);
@@ -284,6 +301,9 @@ const styles = StyleSheet.create({
     width: "50%",
     paddingVertical: 10,
     borderRadius: 10,
+  },
+  picker: {
+    gap: 0
   },
   closeModal: {
     borderStyle: "solid",
