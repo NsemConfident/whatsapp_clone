@@ -7,7 +7,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 interface Prop {
-  id: number;
+  id: string;
   profile: string;
   title: string;
   message: string;
@@ -23,6 +23,7 @@ const CardListItem = ({
   date,
   statusIcon,
 }: Prop) => {
+  console.log(statusIcon)
   return (
     <View style={styles.container}>
       {profile === "group" ? (

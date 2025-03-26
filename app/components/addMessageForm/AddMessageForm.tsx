@@ -8,44 +8,82 @@ import {
   Image,
   Switch,
   StyleSheet,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-
-interface AddMessageFormProps {
-  visible: boolean;
-  onClose: () => void;
-  onAdd: (newItem: any) => void;
-}
+import { AddMessageFormProps, NewMessage } from "../types"; // Update this path to your actual types file location
 
 const AddMessageForm: React.FC<AddMessageFormProps> = ({ visible, onClose, onAdd }) => {
-  const [profile, setProfile] = useState("");
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [message, setMessage] = useState("");
-  const [statusIcon, setStatusIcon] = useState("pin");
-  const [isUnread, setIsUnread] = useState(false);
-  const [isGroup, setIsGroup] = useState(false);
-  const [isFavourite, setIsFavourite] = useState(false);
+  const [profile, setProfile] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [statusIcon, setStatusIcon] = useState<string>("pin");
+  const [isUnread, setIsUnread] = useState<boolean>(false);
+  const [isGroup, setIsGroup] = useState<boolean>(false);
+  const [isFavourite, setIsFavourite] = useState<boolean>(false);
+
+  // Reset form when closed
+  const resetForm = () => {
+    setProfile("");
+    setTitle("");
+    setDate("");
+    setMessage("");
+    setStatusIcon("pin");
+    setIsUnread(false);
+    setIsGroup(false);
+    setIsFavourite(false);
+  };
 
   // Function to Pick Image
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      // Request media library permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert("Permission Denied", "We need camera roll permissions to upload an image.");
+        return;
+      }
 
-    if (!result.canceled) {
-      setProfile(result.assets[0].uri);
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setProfile(result.assets[0].uri);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to pick image. Please try again.");
+      console.error("Image picking error:", error);
     }
+  };
+
+  // Form validation
+  const validateForm = (): boolean => {
+    if (!title.trim()) {
+      Alert.alert("Validation Error", "Title is required");
+      return false;
+    }
+    if (!date.trim()) {
+      Alert.alert("Validation Error", "Date is required");
+      return false;
+    }
+    if (!message.trim()) {
+      Alert.alert("Validation Error", "Message is required");
+      return false;
+    }
+    return true;
   };
 
   // Submit Form
   const handleSubmit = () => {
-    const newItem = {
-      id: Date.now(),
-      profile,
+    if (!validateForm()) return;
+
+    const newItem: NewMessage = {
+      profile: profile ? { uri: profile } : "",
       title,
       date,
       message,
@@ -54,16 +92,23 @@ const AddMessageForm: React.FC<AddMessageFormProps> = ({ visible, onClose, onAdd
       isGroup,
       isFavourite,
     };
-
+  
     onAdd(newItem);
+    resetForm();
     onClose();
   };
 
+  // Close form and reset
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+  
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Add New Item</Text>
+          <Text style={styles.modalTitle}>Add New Message</Text>
 
           {/* Profile Image */}
           <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
@@ -75,10 +120,32 @@ const AddMessageForm: React.FC<AddMessageFormProps> = ({ visible, onClose, onAdd
           </TouchableOpacity>
 
           {/* Inputs */}
-          <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
-          <TextInput style={styles.input} placeholder="Date" value={date} onChangeText={setDate} />
-          <TextInput style={styles.input} placeholder="Message" value={message} onChangeText={setMessage} />
-          <TextInput style={styles.input} placeholder="Status Icon" value={statusIcon} onChangeText={setStatusIcon} />
+          <TextInput 
+            style={styles.input} 
+            placeholder="Title" 
+            value={title} 
+            onChangeText={setTitle} 
+          />
+          <TextInput 
+            style={styles.input} 
+            placeholder="Date (e.g., Jan 20)" 
+            value={date} 
+            onChangeText={setDate} 
+          />
+          <TextInput 
+            style={styles.input} 
+            placeholder="Message" 
+            value={message} 
+            onChangeText={setMessage}
+            multiline
+            numberOfLines={3}
+          />
+          <TextInput 
+            style={styles.input} 
+            placeholder="Status Icon (e.g., pin, check)" 
+            value={statusIcon} 
+            onChangeText={setStatusIcon} 
+          />
 
           {/* Toggles */}
           <View style={styles.switchContainer}>
@@ -99,7 +166,7 @@ const AddMessageForm: React.FC<AddMessageFormProps> = ({ visible, onClose, onAdd
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Add</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleClose}>
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -145,10 +212,12 @@ const styles = StyleSheet.create({
   uploadText: {
     fontSize: 12,
     color: "#555",
+    textAlign: "center",
+    padding: 5,
   },
   input: {
     width: "100%",
-    height: 40,
+    minHeight: 40,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
@@ -158,6 +227,7 @@ const styles = StyleSheet.create({
   switchContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     width: "100%",
     marginBottom: 10,
   },
