@@ -7,6 +7,8 @@ import {
   Pressable,
   Button,
   TextInput,
+  TouchableOpacity,
+  Image,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import MemoryModal from "../memoryModal/MemoryModal";
@@ -18,12 +20,14 @@ import supabase from "@/app/utils/supabaseClient";
 import { formatRelativeTime } from "@/app/utils/dateUtils";
 import CreateChatFormModal from "../chatCreationModal/CreateChatFormModal";
 import { Picker } from "@react-native-picker/picker";
+import { ImageLibraryOptions, launchImageLibrary } from "react-native-image-picker";
 import * as Font from "expo-font";
 import {
   useFonts,
   Mulish_400Regular,
   Mulish_700Bold,
 } from "@expo-google-fonts/mulish";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 interface Message {
   id: string;
   profile: string;
@@ -53,6 +57,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [statusIcon, setStatusIcon] = useState("pin");
+  const [profile, setProfile] = useState<string | null>(null);
 
   let [fontsLoaded] = useFonts({
     Mulish_400Regular,
@@ -66,6 +71,31 @@ const Home: React.FC = () => {
     { id: 3, name: "Favorites", type: "favorites" },
     { id: 4, name: "Groups", type: "groups" },
   ];
+
+  const pickImage = async () => {
+    const options: ImageLibraryOptions = {
+      mediaType: 'photo',
+      quality: 1,
+      selectionLimit: 1,
+    };
+  
+    try {
+      const response = await launchImageLibrary(options);
+      
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        if (uri) {
+          setProfile(uri);
+        }
+      }
+    } catch (error) {
+      console.log('Error launching image library:', error);
+    }
+  };
 
   // Fetch messages from Supabase when component mounts
   useEffect(() => {
@@ -174,6 +204,16 @@ const Home: React.FC = () => {
           <Text style={styles.formDescription}>
             Create a simple chat message
           </Text>
+          <TouchableOpacity style={styles.profileContainer} onPress={pickImage}>
+            {profile ? (
+              <Image source={{ uri: profile }} />
+            ) : (
+              <View>
+                <FontAwesome name="upload" size={24} color="black" />
+              </View>
+            )}
+          </TouchableOpacity>
+          <View></View>
           <View style={styles.nameInput}>
             <TextInput placeholder="First Name" style={[styles.input]} />
             <TextInput placeholder="Last Name" style={[styles.input]} />
@@ -270,6 +310,16 @@ const styles = StyleSheet.create({
     fontFamily: "Mulish_400Regular",
     fontSize: 14,
   },
+  profileContainer: {
+    backgroundColor: "#C0C0C0",
+    height: 100,
+    width: 100,
+    borderRadius: "50%",
+    opacity: 0.6,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   nameInput: {
     // borderWidth: 1,
     // backgroundColor: "cyan",
@@ -303,7 +353,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   picker: {
-    gap: 0
+    gap: 0,
   },
   closeModal: {
     borderStyle: "solid",
